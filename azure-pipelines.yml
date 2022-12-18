@@ -142,3 +142,20 @@ stages:
               node run-tests.js -c 1 test/integration/app-dir-basic/test/index.test.js
             condition: eq(variables['isDocsOnly'], 'No')
             displayName: 'Run tests'
+          
+          - task: CopyFiles@2
+            inputs:
+             Contents: 'build/**' # Pull the build directory (React)
+             TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+          - task: PublishBuildArtifacts@1
+            inputs: 
+             PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
+             ArtifactName: 'www' # output artifact named www
+          
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: '<Azure service connection>'
+              appType: 'webAppLinux'
+              appName: '<Name of web app>'
+              package: '$(System.DefaultWorkingDirectory)/**/*.zip'
